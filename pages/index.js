@@ -26,7 +26,7 @@ class ProjectIndex extends Component{
    return { sorted_projects,getNumberOfvoters,getProjects};
 
   }
-
+adD
 
   renderRow(){
     return (
