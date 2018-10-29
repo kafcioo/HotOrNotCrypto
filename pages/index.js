@@ -12,18 +12,18 @@ class ProjectIndex extends Component{
 
   // Get list of Project from smart contract (ETH)
   static async getInitialProps(){
-  const getNumberOfvoters = await Contract.methods.getNumberOfvoters().call();
-  const getProjects = await Contract.methods.getProjects().call();
-  const projectsList = await Promise.all(
-  Array(parseInt(getProjects))
-  .fill()
-  .map((element, index)=> {
-    return Contract.methods.projects(index).call()
-  }));
+    //onst trasactions =await web3.eth.getTransactionCount("0x5D1e7ebA5BD08BBeCd2aeF90dBbeb3EbC476FefB");
+
+    const getProjects = await Contract.methods.getProjects().call();
+    const projectsList = await Promise.all(
+      Array(parseInt(getProjects))
+      .fill()
+      .map((element, index)=> {
+        return Contract.methods.projects(index).call()
+      }));
   const sorted_projects = _.orderBy(projectsList, ['votes'], ['desc']);
 
-//const sorted_users = _.sortBy(projectsList, ['index', 'votes']);
-   return { sorted_projects,getNumberOfvoters,getProjects};
+   return { sorted_projects};
 
   }
 
@@ -53,9 +53,8 @@ render() {
             <HeaderCell width='1'>Position</HeaderCell>
             <HeaderCell width='2'>Logo</HeaderCell>
             <HeaderCell width='2'>Name</HeaderCell>
-            <HeaderCell width='2'>Votes</HeaderCell>
-            <HeaderCell width='2'> Up Vote</HeaderCell>
-            <HeaderCell width='2'> Down Vote</HeaderCell>
+            <HeaderCell width='2'>Score</HeaderCell>
+            <HeaderCell width='2'> Vote</HeaderCell>
             <HeaderCell width='2'>More Details</HeaderCell>
           </Row>
         </Header>

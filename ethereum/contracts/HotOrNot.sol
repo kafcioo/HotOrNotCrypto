@@ -1,30 +1,42 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.25;
 
 contract HotOrNotCrypto {
 
+    struct Pvote {
+      address voter;
+      string comment;
+
+  }
+     struct Nvote {
+      address voter;
+      string comment;
+
+  }
+
     struct Project{
         uint id;
-        string name;
          int votes;
+         address creator;
+         string name;
         string decryption;
         string website;
         string imageLink;
-       address[] possitive_voters;
-       address[] negative_voters;
+        Pvote[] pvote;
+        Nvote[] nvote;
        mapping(address => bool) voted;
-
     }
+
 
     //Global varibles
     Project[] public projects;
     address owner;
-    uint add_new_project_cost =0;
-    uint votingcost = 0;
-    uint number_of_voters=0;
-    uint idcounter=0;
+    uint add_new_project_cost;
+    uint votingcost;
+    uint number_of_voters;
+    uint idcounter;
 
 
-   function HotOrNotCrypto()public {
+    constructor()public {
         owner=msg.sender;
 
     }
@@ -33,55 +45,112 @@ contract HotOrNotCrypto {
         require(msg.sender == owner);
         _;
     }
-
-    function addNewProject(string name,string decryption, string website, string imageLink) public payable{
-        require (msg.value == add_new_project_cost);
-         Project memory newProject = Project({
-             id:idcounter+1,
-             imageLink:imageLink,
-             name:name,
-             decryption:decryption,
-             website:website,
-             votes: 0,
-             possitive_voters: new address [](0),
-             negative_voters:new address [](0)
-         });
-        idcounter=newProject.id;
-       projects.push(newProject);
+       modifier minEth {
+        require(msg.sender.balance >= 100000000000000000);
+        _;
     }
 
 
 
 
-    function upVote(uint index) public payable{
+
+     function addNewProject(string _name,
+     string _decryption,
+     string _website,
+     string _imageLink) public minEth payable {
+          require (msg.value == add_new_project_cost);
+        uint lastIndex = projects.length++;
+        Project storage project = projects[lastIndex];
+        project.id = idcounter;
+        project.creator=msg.sender;
+        project.name=_name;
+        project.decryption=_decryption;
+        project.website=_website;
+        project.imageLink=_imageLink;
+        idcounter=project.id+1;
+    }
+
+    function editProject(
+     uint index,
+     string name,
+    string decryption,
+    string website,
+    string imageLink
+    )
+    public {
+        Project storage project = projects[index];
+            require (msg.sender== project.creator);
+                project.imageLink =imageLink;
+                project.name= name;
+                project.website =website;
+                project.decryption=decryption;
+    }
+
+    function remove(uint index) public{
+          if(projects[index].creator == msg.sender ||
+          msg.sender==owner){
+
+        for (uint i = index; i<projects.length-1; i++){
+            projects[i] = projects[i+1];
+            Project storage project = projects[i];
+            project.id--;
+        }
+
+        projects.length--;
+        idcounter--;
+          } else revert('Only owner of the project can remove it');
+
+    }
+
+
+
+
+    function upVote(uint index, string _comment) public minEth payable{
+        if (index >= projects.length) revert('No such index exist');
        Project storage project = projects[index];
        require (msg.value == votingcost);
        require (!project.voted[msg.sender]);
 
-       project.possitive_voters.push(msg.sender);
+    Pvote memory v;
+    v.voter = msg.sender;
+    v.comment = _comment;
+    project.pvote.push(v);
        project.voted[msg.sender]=true;
-       number_of_voters++;
+
        project.votes++;
     }
 
-      function downVote(uint index) public payable{
+      function downVote(uint index, string _comment) public minEth payable{
+           if (index >= projects.length) revert('No such index exist');
        Project storage project = projects[index];
        require (msg.value == votingcost);
        require (!project.voted[msg.sender]);
 
-       project.negative_voters.push(msg.sender);
+    Nvote memory v;
+    v.voter = msg.sender;
+    v.comment = _comment;
+    project.nvote.push(v);
        project.voted[msg.sender]=true;
-       number_of_voters++;
        project.votes--;
     }
 
 
-
+      function getOwner() public view returns (address){
+         return owner;
+       }
+       function getPvote (uint index)public view returns(uint){
+           Project memory project = projects[index];
+           return (project.pvote.length);
+       }
+          function getNvote (uint index)public view returns(uint){
+           Project memory project = projects[index];
+           return (project.nvote.length);
+       }
     function getProjects() public view returns (uint){
          return (projects.length);
        }
 
-    function getNumberOfvoters () public returns (uint){
+    function getNumberOfvoters () public view returns (uint){
         return number_of_voters;
     }
 
@@ -89,13 +158,6 @@ contract HotOrNotCrypto {
          return (add_new_project_cost, votingcost);
     }
 
-    function getPossitiveVoters(uint index) public view returns(address[]){
-        return (projects[index].possitive_voters);
-    }
-
-    function getNegativeVoters(uint index) public view returns(address[]){
-        return (projects[index].negative_voters);
-    }
 
 
     // Admin onyl functions
@@ -111,15 +173,5 @@ contract HotOrNotCrypto {
     }
 
 
-      function remove(uint index)  public onlyOwner{
-        if (index >= projects.length) return;
-
-        for (uint i = index; i<projects.length-1; i++){
-            projects[i] = projects[i+1];
-        }
-        delete projects[projects.length-1];
-        projects.length--;
-
-    }
 
 }
