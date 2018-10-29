@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Form, Input, Message,Grid, } from 'semantic-ui-react';
+import { Button, Form, Input, Message,Grid, TextArea} from 'semantic-ui-react';
 import web3 from '../../ethereum/web3';
 import contract from '../../ethereum/localInstanceOfContract.js';
 import Layout from '../../componenets/Layout.js';
@@ -66,6 +66,7 @@ onSubmit = async () => {
         <Form.Field>
           <label>Short Descryption </label>
           <Input position ='left'
+            control={TextArea}
             value={projectDetails}
             onChange={event=> this.setState({projectDetails:event.target.value})}
           />
