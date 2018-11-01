@@ -6,3 +6,6 @@ Also, I'm working on a mechanism to check the previous transaction of the sender
 There is also works on escrow some eth with each vote for a certain amount of the time. All this is to further validate that the vote is legit and no fake account are created to shill their projects.
 
 Some Screen from version 2
+
+https://snag.gy/PvYtSO.jpg
+https://snag.gy/ksqPYB.jpg
